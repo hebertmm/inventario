@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Inventario</string>
+    <string name="edit_message">Número do patrimônio</string>
+    <string name="reminder">Reminder name</string>
+    <string name="done">Leitor</string>
+    <string name="button_send">Ler</string>
+    <string name="hint_teste">Teste</string>
+    <string name="str_busca">Pesquisar</string>
+    <string name="config">Configurações</string>
+    <string name="importar">Importar arquivo</string>
+    <string name="exportar">Exportar arquivo</string>
+    <array name="setor">
+    <item>GR07</item>
+    <item>UO7.1</item>
+    <item>UO7.2</item>
+    <item>UO7.3</item>
+    </array>
+    <array name="endereco">
+        <item>GR07GI</item>
+        <item>GR07AF</item>
+        <item>GR07FI1</item>
+        <item>GR07OR</item>
+    </array>
+    <array name="status">
+        <item>BOM</item>
+        <item>OCIOSO</item>
+        <item>ANTIECONOMICO</item>
+        <item>IRRECUPERAVEL</item>
+    </array>
+</resources>
