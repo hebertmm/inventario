@@ -9,8 +9,9 @@ import java.util.List;
  */
 
 public interface ItemDAO {
-    public void save (Item i);
-    public void delete (Item i);
-    public List<Item> list();
-    public Item find (String patrim);
+    void save (Item i);
+    void update(Item i);
+    void delete (Item i);
+    List<Item> list();
+    Item find (String patrim);
 }

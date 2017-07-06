@@ -26,20 +26,23 @@ public class ItemDAOSqlite implements ItemDAO {
     @Override
     public void save (Item i){
         ContentValues cv = this.objectToCv(i);
-        if(i.get_ID() != null){
-            db.update(DatabaseContract.ItemPatrim.TABLE_NAME,cv,null,null);
-        }
-        else
-            db.insert(DatabaseContract.ItemPatrim.TABLE_NAME,null,cv);
-
+        db.insert(DatabaseContract.ItemPatrim.TABLE_NAME, null, cv);
+        Log.e("save ", "Fez insert");
     }
 
-
+    @Override
+    public void update(Item i) {
+        ContentValues cv = this.objectToCv(i);
+        db.update(DatabaseContract.ItemPatrim.TABLE_NAME,cv,null,null);
+            Log.e("save ", "Fez update");
+    }
 
     @Override
     public void delete(Item i) {
+        String[] str = new String[1];
+        str[0] = String.valueOf(i.get_ID());
         if(i.get_ID() != null){
-            db.delete(DatabaseContract.ItemPatrim.TABLE_NAME,null, null);
+            db.delete(DatabaseContract.ItemPatrim.TABLE_NAME,DatabaseContract.ItemPatrim._ID + " = ?",str);
         }
 
     }
@@ -52,6 +55,7 @@ public class ItemDAOSqlite implements ItemDAO {
         while (!c.isLast()){
             //list.add
         }
+        c.close();
         return null;
     }
 
@@ -68,6 +72,7 @@ public class ItemDAOSqlite implements ItemDAO {
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO)),
                                 Boolean.valueOf(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL))));
         Log.e("Find: ",i.getPatrim());
+        c.close();
         return i;
     }
 
