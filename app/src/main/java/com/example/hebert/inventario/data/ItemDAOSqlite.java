@@ -65,7 +65,8 @@ public class ItemDAOSqlite implements ItemDAO {
         args[0] = patrim;
         Cursor c = db.query(DatabaseContract.ItemPatrim.TABLE_NAME,null,"patrim = ?",args,null,null,null);
         c.moveToFirst();
-        Item i = new Item(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM)),
+        Item i = new Item(c.getInt(c.getColumnIndex(DatabaseContract.ItemPatrim._ID)),
+                                c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC)),
                                 Integer.getInteger(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO))),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS)),

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import com.example.hebert.inventario.data.DatabaseOpenHelper;
 import com.example.hebert.inventario.data.ItemDAO;
@@ -56,12 +57,25 @@ public class ExampleInstrumentedTest {
         db.close();
     }
     @Test
+    public void testUpdate() throws Exception{
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        SQLiteDatabase db = new DatabaseOpenHelper(appContext).getWritableDatabase();
+        ItemDAO dao = new ItemDAOSqlite(db);
+        Item i = dao.find("565656");
+        Log.e("item id",String.valueOf(i.get_ID()));
+        i.setCod_endereco(5);
+        dao.update(i);
+        Item j = dao.find("565656");
+        assertEquals((long)5, (long)j.getCod_endereco());
+    }
+    @Test
     public void testFind() throws  Exception{
         Context appContext = InstrumentationRegistry.getTargetContext();
         SQLiteDatabase db = new DatabaseOpenHelper(appContext).getWritableDatabase();
         ItemDAO dao = new ItemDAOSqlite(db);
-        Item i = dao.find("123456");
-        assertEquals(null,i.getPatrim(),"123456");
+        Item i = dao.find("565656");
+        Log.i("Find",String.valueOf(i.get_ID()));
+        assertEquals(null,i.getPatrim(),"565656");
 
     }
 }

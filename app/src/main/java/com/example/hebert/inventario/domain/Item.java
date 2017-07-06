@@ -16,7 +16,8 @@ public class Item {
 
     public Item(){};
 
-    public Item(String patrim, String descricao, Integer cod_endereco, String status, String data_inventario, boolean alteracao_local) {
+    public Item(Integer _id, String patrim, String descricao, Integer cod_endereco, String status, String data_inventario, boolean alteracao_local) {
+        this._ID = _id;
         this.patrim = patrim;
         this.descricao = descricao;
         this.cod_endereco = cod_endereco;
