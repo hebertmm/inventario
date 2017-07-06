@@ -65,8 +65,10 @@ public class ExampleInstrumentedTest {
         Log.e("item id",String.valueOf(i.get_ID()));
         i.setCod_endereco(5);
         dao.update(i);
-        Item j = dao.find("565656");
-        assertEquals((long)5, (long)j.getCod_endereco());
+        Item j = new Item();
+        j = dao.find("565656");
+        Log.i("update", String.valueOf(i.getCod_endereco())+" - "+String.valueOf(j.getCod_endereco()));
+        assertTrue(i.getCod_endereco()==j.getCod_endereco());
     }
     @Test
     public void testFind() throws  Exception{
