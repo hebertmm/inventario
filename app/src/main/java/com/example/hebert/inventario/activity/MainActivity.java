@@ -15,24 +15,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hebert.inventario.R;
+import com.example.hebert.inventario.data.ItemDAO;
+import com.example.hebert.inventario.data.ItemDAOSqlite;
+import com.example.hebert.inventario.domain.Item;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener{
 
     private Button scanBtn;
+    private Button saveBtn;
     private TextView formatTxt, contentTxt;
     private Spinner setorSpn, endSpn, statusSpn;
     private CheckBox chkInventariado, chkMudou;
+    private Item item;
+    private ItemDAO dao;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         scanBtn = (Button)findViewById(R.id.scan_button);
+        saveBtn = (Button)findViewById(R.id.btnSalvar);
         formatTxt = (TextView)findViewById(R.id.scan_format);
         contentTxt = (TextView)findViewById(R.id.scan_content);
         scanBtn.setOnClickListener(this);
+        saveBtn.setOnClickListener(this);
         setorSpn = (Spinner)findViewById(R.id.spnSetor);
         endSpn = (Spinner)findViewById(R.id.spnEndereco);
         statusSpn = (Spinner)findViewById(R.id.spnEstado);
@@ -47,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         ArrayAdapter<CharSequence> adapterSta = ArrayAdapter.createFromResource(this,R.array.status, android.R.layout.simple_spinner_item);
         adapterSta.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpn.setAdapter(adapterSta);
+        this.dao = new ItemDAOSqlite(getBaseContext());
     }
 
     @Override
@@ -63,7 +73,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             scantIntegrator.initiateScan();
         }
         if(v.getId() == R.id.btnSalvar){
-
+            item = new Item();
+            item.setPatrim(String.valueOf(contentTxt.getText()));
+            item.setStatus((String)statusSpn.getSelectedItem());
+            item.setCod_endereco(endSpn.getSelectedItemPosition());
+            item.setAlteracao_local(chkMudou.isSelected());
+            dao.save(item);
         }
     }
 

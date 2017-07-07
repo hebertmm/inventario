@@ -13,9 +13,9 @@
         android:id="@+id/scan_content"
         android:layout_width="287dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="28dp"
+        android:layout_marginLeft="48dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="9dp"
+        android:layout_marginTop="11dp"
         android:ems="10"
         android:hint="@string/edit_message"
         android:inputType="textPersonName|number"
@@ -33,11 +33,11 @@
         android:layout_marginTop="8dp"
         android:text="@string/button_send"
         app:layout_constraintBottom_toBottomOf="@+id/scan_content"
-        app:layout_constraintHorizontal_bias="0.094"
+        app:layout_constraintHorizontal_bias="0.066"
         app:layout_constraintLeft_toRightOf="@+id/scan_content"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/scan_content"
-        app:layout_constraintVertical_bias="0.615" />
+        app:layout_constraintVertical_bias="0.8" />
 
     <TextView
         android:id="@+id/scan_format"

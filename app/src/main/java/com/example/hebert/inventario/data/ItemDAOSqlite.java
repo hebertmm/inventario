@@ -1,6 +1,7 @@
 package com.example.hebert.inventario.data;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -16,9 +17,11 @@ import java.util.List;
 
 public class ItemDAOSqlite implements ItemDAO {
     private SQLiteDatabase db;
+    private Context context;
 
-    public ItemDAOSqlite(SQLiteDatabase db) {
-        this.db = db;
+    public ItemDAOSqlite(Context context) {
+        DatabaseOpenHelper helper = new DatabaseOpenHelper(context);
+        this.db = helper.getWritableDatabase();
     }
 
 
@@ -70,13 +73,17 @@ public class ItemDAOSqlite implements ItemDAO {
         Item i = new Item(c.getInt(c.getColumnIndex(DatabaseContract.ItemPatrim._ID)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC)),
-                                Integer.getInteger(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO))),
+                                c.getInt(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO)),
                                 Boolean.valueOf(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL))));
-        Log.e("id=: ",String.valueOf(i.get_ID()));
+        Log.e("id=: ",String.valueOf(i.getCod_endereco()));
         c.close();
         return i;
+    }
+
+    public void close() {
+        this.db.close();
     }
 
     private ContentValues objectToCv(Item i){

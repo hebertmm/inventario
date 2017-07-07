@@ -12,7 +12,7 @@ import android.util.Log;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "patrim.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
@@ -21,7 +21,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                     DatabaseContract.ItemPatrim._ID + " INTEGER PRIMARY KEY NOT NULL, " +
                     DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM  + TEXT_TYPE + COMMA_SEP +
                     DatabaseContract.ItemPatrim.COLUMN_NAME_DESC  + TEXT_TYPE + COMMA_SEP +
-                    DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO + TEXT_TYPE + COMMA_SEP +
+                    DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO + " INTEGER" + COMMA_SEP +
                     DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS + TEXT_TYPE + COMMA_SEP +
                     DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO + TEXT_TYPE + COMMA_SEP +
                     DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL + TEXT_TYPE +
