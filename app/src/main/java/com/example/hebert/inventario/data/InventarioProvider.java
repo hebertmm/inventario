@@ -1,9 +1,11 @@
 package com.example.hebert.inventario.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +46,7 @@ public class InventarioProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
+                //Log.i("Query",selection + selectionArgs[0]);
                 break;
             }
             // "weather/*"
@@ -108,7 +111,40 @@ public class InventarioProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        final SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri;
+
+        switch (match) {
+            case ITEM: {
+                long _id = db.insert(DatabaseContract.ItemPatrim.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = ContentUris.withAppendedId(DatabaseContract.ItemPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case ENDERECO: {
+                long _id = db.insert(DatabaseContract.EnderecoPatrim.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = ContentUris.withAppendedId(DatabaseContract.EnderecoPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case SETOR: {
+                long _id = db.insert(DatabaseContract.SetorPatrim.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = ContentUris.withAppendedId(DatabaseContract.SetorPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return returnUri;
     }
 
     @Override
@@ -123,6 +159,12 @@ public class InventarioProvider extends ContentProvider {
 
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        return matcher;
+        final String authority = DatabaseContract.CONTENT_AUTHORITY;
+
+        // For each type of URI you want to add, create a corresponding code.
+        matcher.addURI(authority, DatabaseContract.PATH_ITEM, ITEM);
+        matcher.addURI(authority, DatabaseContract.PATH_ENDERECO, ENDERECO);
+        matcher.addURI(authority, DatabaseContract.PATH_SETOR, SETOR);
+       return matcher;
     }
 }

@@ -54,6 +54,6 @@ public final class DatabaseContract {
         public static final String  TABLE_NAME = "endereco";
         public static final String  COLUMN_NAME_COD_ENDERECO = "cod_endereco";
         public static final String  COLUMN_NAME_NOME_ENDERECO = "nome_endereco";
-        public static final String  COLUMN_NAME_COD_SETOR = "cod_setor";
+        public static final String  COLUMN_NAME_COD_SETOR = "id_setor";
     }
 }
