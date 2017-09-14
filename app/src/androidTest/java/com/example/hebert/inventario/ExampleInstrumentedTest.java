@@ -53,7 +53,7 @@ public class ExampleInstrumentedTest {
         ContentResolver resolver = appContext.getContentResolver();
         Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL,false);
+        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,false);
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, "2017-07-05");
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,"Teste de Descrição 2222");
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,3);

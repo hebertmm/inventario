@@ -29,11 +29,10 @@ public final class DatabaseContract {
         public static final String TABLE_NAME = "item";
         public static final String COLUMN_NAME_PATRIM = "patrim";
         public static final String COLUMN_NAME_DESC = "desc";
-        public static final String COLUMN_NAME_COD_SETOR = "cod_setor";
         public static final String  COLUMN_NAME_COD_ENDERECO = "cod_endereco";
         public static final String  COLUMN_NAME_STATUS = "status";
         public static final String  COLUMN_NAME_DATA_INVENTARIO = "data_inventario";
-        public static final String  COLUMN_NAME_ALTERACAO_LOCAL = "alteracao_local";
+        public static final String COLUMN_NAME_LOCAL_INVENTARIO = "local_inventario";
     }
     public static class SetorPatrim implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SETOR).build();

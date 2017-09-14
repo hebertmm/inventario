@@ -3,6 +3,8 @@ package com.example.hebert.inventario.activity;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,17 +26,22 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hebert.inventario.FileInputUtility;
 import com.example.hebert.inventario.FileOutputUtility;
 import com.example.hebert.inventario.JsonFileUtility;
 import com.example.hebert.inventario.R;
-import com.example.hebert.inventario.Utility;
 import com.example.hebert.inventario.data.DatabaseContract;
 import com.example.hebert.inventario.data.ItemDAO;
 import com.example.hebert.inventario.domain.Item;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener{
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import static com.example.hebert.inventario.R.array.endereco;
+
+public class MainActivity extends AppCompatActivity implements OnClickListener, AdapterView.OnItemSelectedListener{
 
     private Button scanBtn;
     private Button saveBtn;
@@ -73,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         ArrayAdapter<CharSequence> adapterSetor = ArrayAdapter.createFromResource(this,R.array.setor, android.R.layout.simple_spinner_item);
         adapterSetor.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         setorSpn.setAdapter(sca);
-        ArrayAdapter<CharSequence> adapterEnd = ArrayAdapter.createFromResource(this,R.array.endereco, android.R.layout.simple_spinner_item);
+        setorSpn.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapterEnd = ArrayAdapter.createFromResource(this, endereco, android.R.layout.simple_spinner_item);
         adapterEnd.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         endSpn.setAdapter(adapterEnd);
         ArrayAdapter<CharSequence> adapterSta = ArrayAdapter.createFromResource(this,R.array.status, android.R.layout.simple_spinner_item);
@@ -156,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         Log.e("onActivityResult:","requestCode: "+ requestCode + " intentIntegrator: " + IntentIntegrator.REQUEST_CODE);
         if(requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-            if (scanningResult != null) {
+            if ((scanningResult != null) && (scanningResult.getContents() != null)) {
                 String a[] = {""};
                 if(scanningResult.getContents().charAt(0) == '0')
                     a[0] = scanningResult.getContents().substring(1,7);
@@ -171,7 +180,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
                     int i = c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC);
                     formatTxt.setText(c.getString(i));
                     chkInventariado.setChecked(true);
-                    //data atual
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    Log.i("Current Date", mFormat.format(cal.getTime()));
+                    ContentValues cv = new ContentValues();
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,this.endSpn.getSelectedItemId());
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, mFormat.format(cal.getTime()));
+                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
+                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,3); //validar
+                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM,patrim);
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
+                    uri = ContentUris.withAppendedId(uri, c.getLong(0));
+                    Log.i("uri", uri.toString());
+                    Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));
                 }
                 else
                     Log.e("ERRO", "Item não localizado no banco de dados");
@@ -193,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         }
         if(requestCode == IMPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK){
             Uri uri = null;
-            Utility fileUtility = new Utility(getApplicationContext());
+            FileInputUtility fileUtility = new FileInputUtility(getApplicationContext());
             if(intent != null) {
                 uri = intent.getData();
                 fileUtility.execute(uri);
@@ -232,5 +253,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             }
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Toast.makeText(this, String.valueOf(id), Toast.LENGTH_LONG).show();
+        String[] args = new String[] {String.valueOf(id)};
+        Cursor endereco = getContentResolver().query(DatabaseContract.EnderecoPatrim.CONTENT_URI, null, DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + "= ?", args, null);
+        endereco.moveToFirst();
+        Log.i("Endereco",String.valueOf(endereco.getCount()));
+        String[] from = new String[] {DatabaseContract.EnderecoPatrim.COLUMN_NAME_NOME_ENDERECO};
+        int[] to = new int[] {android.R.id.text1};
+        SimpleCursorAdapter sca = new SimpleCursorAdapter(this,android.R.layout.simple_spinner_dropdown_item,endereco,from,to);
+        sca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.endSpn.setAdapter(sca);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

@@ -76,7 +76,7 @@ public class ItemDAOSqlite implements ItemDAO {
                                 c.getInt(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO)),
-                                Boolean.valueOf(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL))));
+                                Boolean.valueOf(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO))));
         Log.e("id=: ",String.valueOf(i.getCod_endereco()));
         c.close();
         return i;
@@ -94,7 +94,7 @@ public class ItemDAOSqlite implements ItemDAO {
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,i.getCod_endereco());
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,i.getStatus());
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, String.valueOf(i.getData_inventario()));
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL,i.isAlteracao_local());
+        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,i.isAlteracao_local());
         return cv;
     }
 

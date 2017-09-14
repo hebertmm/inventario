@@ -19,10 +19,11 @@ public class InventarioProvider extends ContentProvider {
     private DatabaseOpenHelper dbOpenHelper;
 
     static final int ITEM = 100;
-    static final int ENDERECO = 101;
-    static final int SETOR = 102;
-    static final int ITEM_POR_ENDERECO = 103;
-    static final int ENDERECO_POR_SETOR = 104;
+    static final int ITEM_COM_ID = 101;
+    static final int ENDERECO = 200;
+    static final int SETOR = 300;
+    static final int ITEM_POR_ENDERECO = 102;
+    static final int ENDERECO_POR_SETOR = 201;
     @Override
     public boolean onCreate() {
         dbOpenHelper = new DatabaseOpenHelper(getContext());
@@ -50,8 +51,17 @@ public class InventarioProvider extends ContentProvider {
                 break;
             }
             // "weather/*"
-            case ITEM_POR_ENDERECO: {
-                retCursor = null;
+            case ITEM_COM_ID: {
+                retCursor = dbOpenHelper.getReadableDatabase().query(
+                        DatabaseContract.ItemPatrim.TABLE_NAME,
+                        projection,
+                        DatabaseContract.ItemPatrim._ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))},
+                        null,
+                        null,
+                        null
+                );
+                //Log.i("Query",selection + selectionArgs[0]);
                 break;
             }
             // "weather"
@@ -104,6 +114,8 @@ public class InventarioProvider extends ContentProvider {
                 return DatabaseContract.EnderecoPatrim.CONTENT_TYPE;
             case SETOR:
                 return DatabaseContract.SetorPatrim.CONTENT_TYPE;
+            case ITEM_COM_ID:
+                return DatabaseContract.ItemPatrim.CONTENT_ITEM_TYPE;
         }
         return null;
     }
@@ -154,7 +166,42 @@ public class InventarioProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int  affectedRows = 0;
+
+        switch (match) {
+            case ITEM: {
+                affectedRows = db.update(DatabaseContract.ItemPatrim.TABLE_NAME,values,selection,selectionArgs);
+                break;
+            }
+            case ITEM_COM_ID: {
+                affectedRows = db.update(DatabaseContract.ItemPatrim.TABLE_NAME,
+                        values,DatabaseContract.ItemPatrim._ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))});
+                break;
+            }
+            case ENDERECO: {
+                long _id = db.insert(DatabaseContract.EnderecoPatrim.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    ContentUris.withAppendedId(DatabaseContract.EnderecoPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case SETOR: {
+                long _id = db.insert(DatabaseContract.SetorPatrim.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    ContentUris.withAppendedId(DatabaseContract.SetorPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return affectedRows;
     }
 
     static UriMatcher buildUriMatcher() {
@@ -163,6 +210,7 @@ public class InventarioProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, DatabaseContract.PATH_ITEM, ITEM);
+        matcher.addURI(authority,DatabaseContract.PATH_ITEM + "/#",ITEM_COM_ID);
         matcher.addURI(authority, DatabaseContract.PATH_ENDERECO, ENDERECO);
         matcher.addURI(authority, DatabaseContract.PATH_SETOR, SETOR);
        return matcher;

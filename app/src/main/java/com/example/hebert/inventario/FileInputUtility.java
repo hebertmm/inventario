@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
  * Created by hebert on 30/08/2017.
  */
 
-public class Utility extends AsyncTask<Uri, Integer, Integer>{
+public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
     //constantes para colunas do arquivo csv
     public static final String SEPARATOR = ";";
     public static final int NUM_COL = 5;
@@ -31,7 +31,7 @@ public class Utility extends AsyncTask<Uri, Integer, Integer>{
     private Context mContext;
 
 
-    public Utility(Context mContext) {
+    public FileInputUtility(Context mContext) {
         this.mContext = mContext;
     }
 
@@ -40,7 +40,7 @@ public class Utility extends AsyncTask<Uri, Integer, Integer>{
         String[] fields = line.split(SEPARATOR,NUM_COL);
         Uri db = DatabaseContract.ItemPatrim.CONTENT_URI;
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_ALTERACAO_LOCAL,false);
+        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,false);
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, "");
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,3); //validar

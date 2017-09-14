@@ -38,16 +38,16 @@ public class FileOutputUtility extends AsyncTask<Uri, Integer, Integer> {
             //BufferedWriter bw = new BufferedWriter(fw,150000);
             int i = 0;
             while (c.moveToNext()){
-                //String line = c.getString(3)+Utility.SEPARATOR+c.getString(4)+Utility.SEPARATOR;
-                bw.write(c.getString(3)+Utility.SEPARATOR);
-                bw.write(c.getString(1)+Utility.SEPARATOR);
+                //String line = c.getString(3)+FileInputUtility.SEPARATOR+c.getString(4)+FileInputUtility.SEPARATOR;
+                bw.write(c.getString(3)+ FileInputUtility.SEPARATOR);
+                bw.write(c.getString(1)+ FileInputUtility.SEPARATOR);
                 String desc = c.getString(2);
-                if(desc.length() > 20)
-                    desc = desc.substring(0,20);
-                bw.write(desc+Utility.SEPARATOR);
-                bw.write(c.getString(4)+Utility.SEPARATOR);
-                bw.write(c.getString(5)+Utility.SEPARATOR);
-                //bw.write(c.getString(6));
+                //if(desc.length() > 20)
+                //    desc = desc.substring(0,20);
+                bw.write(desc+ FileInputUtility.SEPARATOR);
+                bw.write(c.getString(4)+ FileInputUtility.SEPARATOR);
+                bw.write(c.getString(5)+ FileInputUtility.SEPARATOR);
+                bw.write(c.getString(6));
                 bw.newLine();
                 i++;
             }
