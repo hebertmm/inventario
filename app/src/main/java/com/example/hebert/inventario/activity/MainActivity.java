@@ -31,7 +31,6 @@ import com.example.hebert.inventario.FileOutputUtility;
 import com.example.hebert.inventario.JsonFileUtility;
 import com.example.hebert.inventario.R;
 import com.example.hebert.inventario.data.DatabaseContract;
-import com.example.hebert.inventario.data.ItemDAO;
 import com.example.hebert.inventario.domain.Item;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Spinner setorSpn, endSpn, statusSpn;
     private CheckBox chkInventariado, chkMudou;
     private Item item;
-    private ItemDAO dao;
+
 
     final int EXPORT_REQUEST_CODE = 43;
     final int IMPORT_REQUEST_CODE = 44;
@@ -176,14 +175,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
                 Log.i("Cursor", String.valueOf(c.getCount()));
                 contentTxt.setText(a[0]);
+                ContentValues cv = new ContentValues();
+                Calendar cal = Calendar.getInstance();
+                SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
                 if(c.moveToNext()){
                     int i = c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC);
                     formatTxt.setText(c.getString(i));
                     chkInventariado.setChecked(true);
-                    Calendar cal = Calendar.getInstance();
-                    SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
+
                     Log.i("Current Date", mFormat.format(cal.getTime()));
-                    ContentValues cv = new ContentValues();
+
                     cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,this.endSpn.getSelectedItemId());
                     cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, mFormat.format(cal.getTime()));
                     //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
@@ -194,8 +195,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     Log.i("uri", uri.toString());
                     Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));
                 }
-                else
+                else {
                     Log.e("ERRO", "Item não localizado no banco de dados");
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,this.endSpn.getSelectedItemId());
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, mFormat.format(cal.getTime()));
+                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,this.endSpn.getSelectedItemId()); //validar
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM,a[0]);
+                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
+                    Log.i("insert",getContentResolver().insert(uri, cv).toString());
+
+                }
+
                 c.close();
 
             } else {
@@ -230,26 +241,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.i("READ", uri.toString());
                 JsonFileUtility jfu = new JsonFileUtility(getApplicationContext());
                 jfu.execute(uri);
-                /*ContentResolver resolver = getBaseContext().getContentResolver();
-                try {
-                    InputStream is = getContentResolver().openInputStream(uri);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        Log.i("->", line);
-                        sb.append(line).append('\n');
-                    }
-                    JSONArray ja = new JSONArray(sb.toString());
-                    Log.i("JSON",ja.getJSONObject(1).getString("nome"));
-                    is.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (org.json.JSONException e) {
-                    e.printStackTrace();
-                }*/
             }
         }
         super.onActivityResult(requestCode, resultCode, intent);
