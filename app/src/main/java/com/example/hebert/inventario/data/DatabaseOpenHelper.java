@@ -12,7 +12,7 @@ import android.util.Log;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "patrim.db";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 27;
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
@@ -36,7 +36,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                     DatabaseContract.EnderecoPatrim._ID + " INTEGER PRIMARY KEY," +
                     DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_ENDERECO + TEXT_TYPE + COMMA_SEP +
                     DatabaseContract.EnderecoPatrim.COLUMN_NAME_NOME_ENDERECO + TEXT_TYPE + COMMA_SEP +
-                    DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + " INTEGER" +" )";
+                    DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + " INTEGER" + COMMA_SEP +
+                    "FOREIGN KEY("+DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR+") " +
+                        "REFERENCES " + DatabaseContract.SetorPatrim.TABLE_NAME + "(" + DatabaseContract.SetorPatrim._ID + ")" + " )";
 
     private static final String SQL_DELETE_ITEM =
             "DROP TABLE IF EXISTS " + DatabaseContract.ItemPatrim.TABLE_NAME;

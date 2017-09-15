@@ -21,9 +21,10 @@ public class InventarioProvider extends ContentProvider {
     static final int ITEM = 100;
     static final int ITEM_COM_ID = 101;
     static final int ENDERECO = 200;
+    static final int ENDERECO_COM_ID = 201;
     static final int SETOR = 300;
     static final int ITEM_POR_ENDERECO = 102;
-    static final int ENDERECO_POR_SETOR = 201;
+    static final int ENDERECO_POR_SETOR = 202;
     @Override
     public boolean onCreate() {
         dbOpenHelper = new DatabaseOpenHelper(getContext());
@@ -77,6 +78,19 @@ public class InventarioProvider extends ContentProvider {
                 );
                 break;
             }
+            case ENDERECO_COM_ID: {
+                retCursor = dbOpenHelper.getReadableDatabase().query(
+                        DatabaseContract.EnderecoPatrim.TABLE_NAME,
+                        projection,
+                        DatabaseContract.EnderecoPatrim._ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))},
+                        null,
+                        null,
+                        null
+                );
+                //Log.i("Query",selection + selectionArgs[0]);
+                break;
+            }
             // "location"
             case SETOR: {
                 retCursor = dbOpenHelper.getReadableDatabase().query(
@@ -116,6 +130,8 @@ public class InventarioProvider extends ContentProvider {
                 return DatabaseContract.SetorPatrim.CONTENT_TYPE;
             case ITEM_COM_ID:
                 return DatabaseContract.ItemPatrim.CONTENT_ITEM_TYPE;
+            case ENDERECO_COM_ID:
+                return DatabaseContract.EnderecoPatrim.CONTENT_ITEM_TYPE;
         }
         return null;
     }
@@ -189,6 +205,12 @@ public class InventarioProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+            case ENDERECO_COM_ID: {
+                affectedRows = db.update(DatabaseContract.EnderecoPatrim.TABLE_NAME,
+                        values,DatabaseContract.EnderecoPatrim._ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))});
+                break;
+            }
             case SETOR: {
                 long _id = db.insert(DatabaseContract.SetorPatrim.TABLE_NAME, null, values);
                 if ( _id > 0 )
@@ -212,6 +234,7 @@ public class InventarioProvider extends ContentProvider {
         matcher.addURI(authority, DatabaseContract.PATH_ITEM, ITEM);
         matcher.addURI(authority,DatabaseContract.PATH_ITEM + "/#",ITEM_COM_ID);
         matcher.addURI(authority, DatabaseContract.PATH_ENDERECO, ENDERECO);
+        matcher.addURI(authority, DatabaseContract.PATH_ENDERECO + "/#", ENDERECO_COM_ID);
         matcher.addURI(authority, DatabaseContract.PATH_SETOR, SETOR);
        return matcher;
     }

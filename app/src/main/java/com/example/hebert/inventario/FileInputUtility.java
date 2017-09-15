@@ -3,6 +3,7 @@ package com.example.hebert.inventario;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -39,11 +40,18 @@ public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
     public ContentValues lineToCv(String line){
         String[] fields = line.split(SEPARATOR,NUM_COL);
         Uri db = DatabaseContract.ItemPatrim.CONTENT_URI;
+        Uri end = DatabaseContract.EnderecoPatrim.CONTENT_URI;
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,false);
+        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,"");
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, "");
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,3); //validar
+        String[] endereco = new String[] {fields[COL_ENDERECO].split("-",2)[0].trim()};
+        Cursor c = mContext.getContentResolver().query(end,null,DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_ENDERECO + "=?",endereco,null);
+        if(c.moveToFirst()){
+            cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,c.getLong(0));
+            Log.i("ID", c.getString(0));
+        }
+        c.close();
         String patrim = fields[COL_PATRIM].substring(0,7).trim();
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM,patrim);
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,fields[COL_SITUACAO_FISICA].trim());
@@ -54,13 +62,14 @@ public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
     protected Integer doInBackground(Uri... params) {
         Log.i("READ", params.toString());
         ContentResolver resolver = mContext.getContentResolver();
+        Integer i = 0;
         try {
             InputStream is;
             is = resolver.openInputStream(params[0]);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             String line;
             while((line = reader.readLine()) != null) {
-                Log.i("->",line);
+                i++;
                 Uri db = DatabaseContract.ItemPatrim.CONTENT_URI;
                 ContentValues cv = lineToCv(line);
                 Log.i("INSERT", String.valueOf(resolver.insert(db, cv)));
@@ -73,6 +82,6 @@ public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 0;
+        return i;
     }
 }
