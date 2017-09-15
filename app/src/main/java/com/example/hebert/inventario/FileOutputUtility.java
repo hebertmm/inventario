@@ -1,5 +1,6 @@
 package com.example.hebert.inventario;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -21,9 +22,22 @@ import java.io.OutputStreamWriter;
 
 public class FileOutputUtility extends AsyncTask<Uri, Integer, Integer> {
     private Context mContext;
+    private ProgressDialog progressDialog;
 
     public FileOutputUtility(Context mContext) {
+        progressDialog = new ProgressDialog(mContext);
         this.mContext = mContext;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        progressDialog.setMessage("Aguarde, salvando o arquivo");
+        progressDialog.show();
+    }
+
+    @Override
+    protected void onPostExecute(Integer integer) {
+        progressDialog.dismiss();
     }
 
     @Override

@@ -20,7 +20,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -46,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Button saveBtn;
     private TextView formatTxt, contentTxt;
     private Spinner setorSpn, endSpn, statusSpn;
-    private CheckBox chkInventariado, chkMudou;
+    //private CheckBox chkInventariado, chkMudou;
+    private ProgressBar progressBar;
     private Item item;
 
 
@@ -68,8 +69,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         setorSpn = (Spinner)findViewById(R.id.spnSetor);
         endSpn = (Spinner)findViewById(R.id.spnEndereco);
         statusSpn = (Spinner)findViewById(R.id.spnEstado);
-        chkInventariado = (CheckBox)findViewById(R.id.chkVerificado3);
-        chkMudou = (CheckBox)findViewById(R.id.chkLocal);
         Cursor setor = getContentResolver().query(DatabaseContract.SetorPatrim.CONTENT_URI, null, null, null, null);
         setor.moveToFirst();
         Log.i("Setor",String.valueOf(setor.getCount()));
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             item.setPatrim(String.valueOf(contentTxt.getText()));
             item.setStatus((String)statusSpn.getSelectedItem());
             item.setCod_endereco(endSpn.getSelectedItemPosition());
-            item.setAlteracao_local(chkMudou.isSelected());
+            //item.setAlteracao_local(chkMudou.isSelected());
             //dao.save(item);
         }
     }
@@ -181,8 +180,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 if(c.moveToNext()){
                     int i = c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC);
                     formatTxt.setText(c.getString(i));
-                    chkInventariado.setChecked(true);
-
                     Log.i("Current Date", mFormat.format(cal.getTime()));
 
                     cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,this.endSpn.getSelectedItemId());
@@ -215,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         if(requestCode == EXPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK){
             Uri uri = null;
-            FileOutputUtility fo = new FileOutputUtility(this.getApplicationContext());
+            FileOutputUtility fo = new FileOutputUtility(this);
             if(intent != null){
                 uri = intent.getData();
                 Log.i("AAAA: ", uri.toString());
@@ -225,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         if(requestCode == IMPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK){
             Uri uri = null;
-            FileInputUtility fileUtility = new FileInputUtility(getApplicationContext());
+            FileInputUtility fileUtility = new FileInputUtility(this);
             if(intent != null) {
                 uri = intent.getData();
                 fileUtility.execute(uri);
@@ -248,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(this, String.valueOf(id), Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, String.valueOf(id), Toast.LENGTH_LONG).show();
         String[] args = new String[] {String.valueOf(id)};
         Cursor endereco = getContentResolver().query(DatabaseContract.EnderecoPatrim.CONTENT_URI, null, DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + "= ?", args, null);
         endereco.moveToFirst();

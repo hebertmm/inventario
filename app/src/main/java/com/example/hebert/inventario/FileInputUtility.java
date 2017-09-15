@@ -1,5 +1,6 @@
 package com.example.hebert.inventario;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,10 +31,12 @@ public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
     public static final int COL_DESC = 3;
     public static final int COL_SITUACAO_FISICA = 4;
     private Context mContext;
+    private ProgressDialog progressDialog;
 
 
     public FileInputUtility(Context mContext) {
         this.mContext = mContext;
+        this.progressDialog = new ProgressDialog(mContext);
     }
 
     //Converte uma linha, lida do arquivo csv, para um ContentValue para inserir no banco
@@ -56,6 +59,17 @@ public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM,patrim);
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,fields[COL_SITUACAO_FISICA].trim());
         return cv;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        progressDialog.setMessage("Carregando Arquivo");
+        progressDialog.show();
+    }
+
+    @Override
+    protected void onPostExecute(Integer integer) {
+        progressDialog.dismiss();
     }
 
     @Override
