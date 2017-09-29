@@ -46,7 +46,7 @@ public class ItemDAOSqlite implements ItemDAO {
     public void delete(Item i) {
         String[] str = new String[1];
         str[0] = String.valueOf(i.get_ID());
-        if(i.get_ID() != null){
+        if(i.get_ID() != 0){
             db.delete(DatabaseContract.ItemPatrim.TABLE_NAME,DatabaseContract.ItemPatrim._ID + " = ?",str);
         }
 
@@ -76,7 +76,7 @@ public class ItemDAOSqlite implements ItemDAO {
                                 c.getInt(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS)),
                                 c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO)),
-                                Boolean.valueOf(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO))));
+                                Integer.valueOf(c.getString(c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO))));
         Log.e("id=: ",String.valueOf(i.getCod_endereco()));
         c.close();
         return i;
@@ -94,7 +94,7 @@ public class ItemDAOSqlite implements ItemDAO {
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,i.getCod_endereco());
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,i.getStatus());
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, String.valueOf(i.getData_inventario()));
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,i.isAlteracao_local());
+        //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,i.isAlteracao_local());
         return cv;
     }
 

@@ -75,6 +75,7 @@ public class FileOutputUtility extends AsyncTask<Uri, Integer, Integer> {
                 else
                     bw.write(c.getString(6));
                 end.close();
+                bw.write(c.getString(7) + FileInputUtility.SEPARATOR);
                 bw.newLine();
                 i++;
             }

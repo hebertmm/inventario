@@ -20,7 +20,6 @@ import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -43,11 +42,12 @@ import static com.example.hebert.inventario.R.array.endereco;
 public class MainActivity extends AppCompatActivity implements OnClickListener, AdapterView.OnItemSelectedListener{
 
     private Button scanBtn;
+    private Button findBtn;
     private Button saveBtn;
-    private TextView formatTxt, contentTxt;
+    private Button cancelBtn;
+    private TextView descricaoTxt, patrimTxt, observacaoTxt;
     private Spinner setorSpn, endSpn, statusSpn;
     //private CheckBox chkInventariado, chkMudou;
-    private ProgressBar progressBar;
     private Item item;
 
 
@@ -61,14 +61,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         scanBtn = (Button)findViewById(R.id.scan_button);
+        findBtn = (Button)findViewById(R.id.find_button);
         saveBtn = (Button)findViewById(R.id.btnSalvar);
-        formatTxt = (TextView)findViewById(R.id.scan_format);
-        contentTxt = (TextView)findViewById(R.id.scan_content);
+        cancelBtn = (Button) findViewById(R.id.btnCancelar);
+        descricaoTxt = (TextView)findViewById(R.id.scan_format);
+        patrimTxt = (TextView)findViewById(R.id.scan_content);
         scanBtn.setOnClickListener(this);
+        findBtn.setOnClickListener(this);
         saveBtn.setOnClickListener(this);
+        cancelBtn.setOnClickListener(this);
         setorSpn = (Spinner)findViewById(R.id.spnSetor);
         endSpn = (Spinner)findViewById(R.id.spnEndereco);
         statusSpn = (Spinner)findViewById(R.id.spnEstado);
+        observacaoTxt = (TextView)findViewById(R.id.txtObservacao);
         Cursor setor = getContentResolver().query(DatabaseContract.SetorPatrim.CONTENT_URI, null, null, null, null);
         setor.moveToFirst();
         Log.i("Setor",String.valueOf(setor.getCount()));
@@ -76,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         int[] to = new int[] {android.R.id.text1};
         SimpleCursorAdapter sca = new SimpleCursorAdapter(this,android.R.layout.simple_spinner_dropdown_item,setor,from,to);
         sca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ArrayAdapter<CharSequence> adapterSetor = ArrayAdapter.createFromResource(this,R.array.setor, android.R.layout.simple_spinner_item);
-        adapterSetor.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //ArrayAdapter<CharSequence> adapterSetor = ArrayAdapter.createFromResource(this,R.array.setor, android.R.layout.simple_spinner_item);
+        //adapterSetor.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         setorSpn.setAdapter(sca);
         setorSpn.setOnItemSelectedListener(this);
         ArrayAdapter<CharSequence> adapterEnd = ArrayAdapter.createFromResource(this, endereco, android.R.layout.simple_spinner_item);
@@ -86,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         ArrayAdapter<CharSequence> adapterSta = ArrayAdapter.createFromResource(this,R.array.status, android.R.layout.simple_spinner_item);
         adapterSta.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpn.setAdapter(adapterSta);
-
+        item = new Item();
     }
 
     @Override
@@ -102,13 +107,60 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             IntentIntegrator scantIntegrator = new IntentIntegrator(this);
             scantIntegrator.initiateScan();
         }
-        if(v.getId() == R.id.btnSalvar){
-            item = new Item();
-            item.setPatrim(String.valueOf(contentTxt.getText()));
-            item.setStatus((String)statusSpn.getSelectedItem());
-            item.setCod_endereco(endSpn.getSelectedItemPosition());
-            //item.setAlteracao_local(chkMudou.isSelected());
-            //dao.save(item);
+        if(v.getId() == R.id.btnSalvar) {
+            if (item.getPatrim() != null) {
+                Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
+                item.setObservacao(observacaoTxt.getText().toString());
+                Log.i("ID", String.valueOf(item.get_ID()));
+                if (item.get_ID() != 0) {
+                    uri = ContentUris.withAppendedId(uri, item.get_ID());
+                    int affectedRows = getContentResolver().update(uri, item.toContentValues(), null, null);
+                    Log.i("Affected Rows", String.valueOf(affectedRows));
+                } else {
+                    ContentValues cv = item.toContentValues();
+                    cv.putNull(DatabaseContract.ItemPatrim._ID);
+                    uri = getContentResolver().insert(uri,cv);
+                    Log.i("inserido", cv.toString());
+                }//falta zerar o objeto item para preparar para nova leitura
+                resetFields();
+            }
+            else
+                Toast.makeText(this,"Favor preencher o campo Patrim e clicar em IR, ou ler o código de barras!", Toast.LENGTH_LONG).show();
+        }
+        if(v.getId() == R.id.find_button){
+            //Toast.makeText(this,"teste",Toast.LENGTH_SHORT).show();
+            String[] a = new String[] {patrimTxt.getText().toString()};
+            Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
+            Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
+            Log.i("Cursor", String.valueOf(c.getCount()));
+            ContentValues cv = new ContentValues();
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
+            if(c.getCount() > 0){
+                item = Item.fromCursor(c);
+                descricaoTxt.setText(item.getDescricao());
+                observacaoTxt.setText(item.getObservacao());
+                Log.i("ID", String.valueOf(item.get_ID()));
+                item.setLocalInventario(this.endSpn.getSelectedItemId());
+                item.setData_inventario(mFormat.format(cal.getTime()));
+                //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
+                /*cv = item.toContentValues();
+                uri = ContentUris.withAppendedId(uri, item.get_ID());
+                Log.i("uri", uri.toString());
+                Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));*/
+            }
+            else {
+                Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
+                item.setPatrim(patrimTxt.getText().toString());
+                item.setLocalInventario(this.endSpn.getSelectedItemId());
+                item.setData_inventario(mFormat.format(cal.getTime()));
+                //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
+            }
+
+            c.close();
+        }
+        if(v.getId() == R.id.btnCancelar){
+            resetFields();
         }
     }
 
@@ -155,12 +207,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.e("FILE", "No app found for import the file.");
             }
         }
+        if(item.getItemId() == R.id.app_bar_search){
+            Intent intent = new Intent(this, ListViewActivity.class);
+            intent.putExtra("cod_end",endSpn.getSelectedItemId());
+            startActivity(intent);
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.e("onActivityResult:","requestCode: "+ requestCode + " intentIntegrator: " + IntentIntegrator.REQUEST_CODE);
+        //Log.e("onActivityResult:","requestCode: "+ requestCode + " intentIntegrator: " + IntentIntegrator.REQUEST_CODE);
         if(requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if ((scanningResult != null) && (scanningResult.getContents() != null)) {
@@ -169,38 +226,38 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     a[0] = scanningResult.getContents().substring(1,7);
                 else
                     a[0] = scanningResult.getContents().substring(2,8);
-                Log.i("PAT", a[0]);
+                //Log.i("PAT", a[0]);
+                patrimTxt.setText(a[0]);
                 Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
                 Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
                 Log.i("Cursor", String.valueOf(c.getCount()));
-                contentTxt.setText(a[0]);
                 ContentValues cv = new ContentValues();
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
-                if(c.moveToNext()){
-                    int i = c.getColumnIndex(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC);
-                    formatTxt.setText(c.getString(i));
-                    Log.i("Current Date", mFormat.format(cal.getTime()));
-
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,this.endSpn.getSelectedItemId());
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, mFormat.format(cal.getTime()));
-                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
-                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,3); //validar
-                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM,patrim);
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
-                    uri = ContentUris.withAppendedId(uri, c.getLong(0));
+                if(c.getCount() > 0){
+                    item = Item.fromCursor(c);
+                    descricaoTxt.setText(item.getDescricao());
+                    observacaoTxt.setText(item.getObservacao());
+                    //Log.i("ID", String.valueOf(i.get_ID()));
+                    item.setLocalInventario(this.endSpn.getSelectedItemId());
+                    item.setData_inventario(mFormat.format(cal.getTime()));
+                    item.setObservacao(observacaoTxt.getText().toString());
+                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
+                    /*cv = i.toContentValues();
+                    uri = ContentUris.withAppendedId(uri, i.get_ID());
                     Log.i("uri", uri.toString());
-                    Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));
+                    Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));//zerar  objeto item para gravar novo item
+                    item = new Item();*/
                 }
                 else {
-                    Log.e("ERRO", "Item não localizado no banco de dados");
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,this.endSpn.getSelectedItemId());
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, mFormat.format(cal.getTime()));
+                    Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
+                    //Item i = new Item();
+                    item.setLocalInventario(endSpn.getSelectedItemId());
+                    item.setData_inventario(mFormat.format(cal.getTime()));
                     //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_COD_ENDERECO,this.endSpn.getSelectedItemId()); //validar
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM,a[0]);
-                    cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
-                    Log.i("insert",getContentResolver().insert(uri, cv).toString());
+                    item.setCod_endereco(0); //validar
+                    item.setPatrim(a[0]);
+                    item.setStatus("BOM");
 
                 }
 
@@ -260,5 +317,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+    public void resetFields(){
+        patrimTxt.setText("");
+        descricaoTxt.setText("");
+        observacaoTxt.setText("");
+        patrimTxt.requestFocus();
+        item = new Item();
     }
 }

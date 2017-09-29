@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by hebert on 22/08/2017.
@@ -146,6 +147,7 @@ public class InventarioProvider extends ContentProvider {
         switch (match) {
             case ITEM: {
                 long _id = db.insert(DatabaseContract.ItemPatrim.TABLE_NAME, null, values);
+                Log.i("Values", values.toString());
                 if ( _id > 0 )
                     returnUri = ContentUris.withAppendedId(DatabaseContract.ItemPatrim.CONTENT_URI, _id);
                 else

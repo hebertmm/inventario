@@ -33,6 +33,7 @@ public final class DatabaseContract {
         public static final String  COLUMN_NAME_STATUS = "status";
         public static final String  COLUMN_NAME_DATA_INVENTARIO = "data_inventario";
         public static final String COLUMN_NAME_LOCAL_INVENTARIO = "local_inventario";
+        public static final String COLUMN_NAME_OBSERVACAO = "observacao";
     }
     public static class SetorPatrim implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_SETOR).build();
