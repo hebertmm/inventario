@@ -45,7 +45,7 @@ public class FileInputUtility extends AsyncTask<Uri, Integer, Integer>{
         Uri db = DatabaseContract.ItemPatrim.CONTENT_URI;
         Uri end = DatabaseContract.EnderecoPatrim.CONTENT_URI;
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,"");
+        cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_LOCAL_INVENTARIO,0);
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DATA_INVENTARIO, "");
         cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
         String[] endereco = new String[] {fields[COL_ENDERECO].split("-",2)[0].trim()};

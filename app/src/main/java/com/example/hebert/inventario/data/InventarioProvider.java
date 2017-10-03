@@ -179,7 +179,48 @@ public class InventarioProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int  affectedRows = 0;
+
+        switch (match) {
+            case ITEM: {
+                affectedRows = db.delete(DatabaseContract.ItemPatrim.TABLE_NAME,selection,selectionArgs);
+                break;
+            }
+            case ITEM_COM_ID: {
+                affectedRows = db.delete(DatabaseContract.ItemPatrim.TABLE_NAME,
+                        DatabaseContract.ItemPatrim._ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))});
+                break;
+            }
+            case ENDERECO: {
+                long _id = db.delete(DatabaseContract.EnderecoPatrim.TABLE_NAME, selection, selectionArgs);
+                if ( _id > 0 )
+                    ContentUris.withAppendedId(DatabaseContract.EnderecoPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case ENDERECO_COM_ID: {
+                affectedRows = db.delete(DatabaseContract.EnderecoPatrim.TABLE_NAME,
+                        DatabaseContract.EnderecoPatrim._ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))});
+                break;
+            }
+            case SETOR: {
+                long _id = db.delete(DatabaseContract.SetorPatrim.TABLE_NAME, selection, selectionArgs);
+                if ( _id > 0 )
+                    ContentUris.withAppendedId(DatabaseContract.SetorPatrim.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return affectedRows;
     }
 
     @Override

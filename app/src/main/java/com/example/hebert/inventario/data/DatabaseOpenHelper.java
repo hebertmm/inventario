@@ -12,7 +12,7 @@ import android.util.Log;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "patrim.db";
-    private static final int DATABASE_VERSION = 32;
+    private static final int DATABASE_VERSION = 33;
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";

@@ -13,7 +13,14 @@
     <item
         android:id="@+id/app_bar_search"
         android:actionViewClass="android.widget.SearchView"
+        android:icon="@drawable/ic_list_item"
+        android:title="@string/str_busca"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/app_bar_find"
+        android:actionViewClass="android.widget.SearchView"
         android:icon="@drawable/ic_search_black_24dp"
         android:title="@string/str_busca"
         app:showAsAction="ifRoom"/>
+
 </menu>

@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     final int IMPORT_REQUEST_CODE = 44;
     final int JSON_REQUEST_CODE = 45;
 
+    final String   END_SPINNER_VALUE = "endSpinnerValue";
+    final String SETOR_SPINNER_VALUE = "endSpinnerValue";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         ArrayAdapter<CharSequence> adapterEnd = ArrayAdapter.createFromResource(this, endereco, android.R.layout.simple_spinner_item);
         adapterEnd.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         endSpn.setAdapter(adapterEnd);
+        if(savedInstanceState != null){
+            setorSpn.setSelection(savedInstanceState.getInt(SETOR_SPINNER_VALUE));
+            endSpn.setSelection(savedInstanceState.getInt(END_SPINNER_VALUE));
+        }
         ArrayAdapter<CharSequence> adapterSta = ArrayAdapter.createFromResource(this,R.array.status, android.R.layout.simple_spinner_item);
         adapterSta.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpn.setAdapter(adapterSta);
@@ -165,6 +172,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(END_SPINNER_VALUE,endSpn.getSelectedItemPosition());
+        outState.putInt(SETOR_SPINNER_VALUE,setorSpn.getSelectedItemPosition());
+    }
+
+    @Override
     @TargetApi(23)
     public boolean onOptionsItemSelected(MenuItem item) {
         String perm[] = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE"};
@@ -210,6 +224,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if(item.getItemId() == R.id.app_bar_search){
             Intent intent = new Intent(this, ListViewActivity.class);
             intent.putExtra("cod_end",endSpn.getSelectedItemId());
+            startActivity(intent);
+        }
+        if(item.getItemId() == R.id.app_bar_find){
+            Intent intent = new Intent(this, FindActivity.class);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);

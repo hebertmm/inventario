@@ -22,10 +22,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.ListViewActivity" />
+
         <provider
             android:name=".data.InventarioProvider"
             android:authorities="com.example.hebert.inventario" />
 
+        <activity android:name=".activity.FindActivity"></activity>
     </application>
 
 </manifest>

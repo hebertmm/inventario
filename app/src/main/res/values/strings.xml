@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Inventario</string>
+    <string name="app_name">Inventario Anatel</string>
     <string name="edit_message">Número do patrimônio</string>
     <string name="reminder">Reminder name</string>
     <string name="done">Leitor</string>
@@ -101,4 +101,5 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="title_activity_find">FindActivity</string>
 </resources>
