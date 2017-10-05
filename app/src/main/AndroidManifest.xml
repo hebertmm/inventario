@@ -27,7 +27,14 @@
             android:name=".data.InventarioProvider"
             android:authorities="com.example.hebert.inventario" />
 
-        <activity android:name=".activity.FindActivity"></activity>
+        <activity android:name=".activity.FindActivity" />
+        <activity android:name=".preferences.PreferenceActivity" />
+        <activity android:name=".preferences.DeleteDataActivity">
+            <intent-filter>
+                <action android:name="com.example.hebert.inventario.DELETE" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

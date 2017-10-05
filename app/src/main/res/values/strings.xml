@@ -8,20 +8,23 @@
     <string name="str_busca">Pesquisar</string>
     <string name="config">Configurações</string>
     <string name="importar">Importar arquivo</string>
+    <string name="importarLocais">Importar arquivo de Locais</string>
     <string name="exportar">Exportar arquivo</string>
     <string name="hint_observacoes">Observações</string>
-    <array name="setor">
-        <item>GR07</item>
+    <string-array name="setor">
         <item>UO7.1</item>
         <item>UO7.2</item>
         <item>UO7.3</item>
-    </array>
-    <array name="endereco">
-        <item>GR07GI</item>
-        <item>GR07AF</item>
-        <item>GR07FI1</item>
-        <item>GR07OR</item>
-    </array>
+        <item>GR07</item>
+    </string-array>
+    <string-array name="setor_id">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <string name="setor_default_id">1</string>
+
     <array name="status">
         <item>BOM</item>
         <item>OCIOSO</item>
@@ -41,7 +44,7 @@
     </string>
 
     <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
+
 
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
     <string-array name="pref_example_list_titles">

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="pref_syncConnectionType"
+        android:title="Setor (PATRIM)"
+        android:dialogTitle="Selecione o setor"
+        android:entries="@array/setor"
+        android:entryValues="@array/setor_id"
+        android:defaultValue="@string/setor_default_id" />
+    <Preference
+        android:key="mykey"
+        android:title="Apagar Banco de Dados"
+        android:summary="Possibilita apagar os dados do banco (itens e locais)" >
+        <intent android:action="com.example.hebert.inventario.DELETE"
+            />
+    </Preference>
+
+</PreferenceScreen>

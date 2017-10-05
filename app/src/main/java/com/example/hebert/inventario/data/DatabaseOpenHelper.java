@@ -12,7 +12,7 @@ import android.util.Log;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "patrim.db";
-    private static final int DATABASE_VERSION = 33;
+    private static final int DATABASE_VERSION = 34;
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
@@ -58,7 +58,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_SETOR);
         db.execSQL(SQL_CREATE_ITEM);
         db.execSQL(SQL_CREATE_ENDERECO);
-        Log.i(this.getClass().getSimpleName(),"chamou open");
+        //Log.i(this.getClass().getSimpleName(),"chamou open");
 
 
     }
@@ -72,6 +72,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_SETOR);
         db.execSQL(SQL_CREATE_ENDERECO);
 
-        Log.i("Upgrade: ",SQL_CREATE_ENDERECO);
+        //Log.i("Upgrade: ",SQL_CREATE_ENDERECO);
     }
 }

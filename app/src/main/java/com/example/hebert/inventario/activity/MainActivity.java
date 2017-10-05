@@ -6,9 +6,11 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -31,13 +33,12 @@ import com.example.hebert.inventario.JsonFileUtility;
 import com.example.hebert.inventario.R;
 import com.example.hebert.inventario.data.DatabaseContract;
 import com.example.hebert.inventario.domain.Item;
+import com.example.hebert.inventario.preferences.PreferenceActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import static com.example.hebert.inventario.R.array.endereco;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, AdapterView.OnItemSelectedListener{
 
@@ -46,17 +47,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Button saveBtn;
     private Button cancelBtn;
     private TextView descricaoTxt, patrimTxt, observacaoTxt;
-    private Spinner setorSpn, endSpn, statusSpn;
-    //private CheckBox chkInventariado, chkMudou;
+    private Spinner endSpn, statusSpn;
     private Item item;
+    private String lastSetorId;
 
 
     final int EXPORT_REQUEST_CODE = 43;
     final int IMPORT_REQUEST_CODE = 44;
     final int JSON_REQUEST_CODE = 45;
-
-    final String   END_SPINNER_VALUE = "endSpinnerValue";
-    final String SETOR_SPINNER_VALUE = "endSpinnerValue";
 
 
     @Override
@@ -73,32 +71,40 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         findBtn.setOnClickListener(this);
         saveBtn.setOnClickListener(this);
         cancelBtn.setOnClickListener(this);
-        setorSpn = (Spinner)findViewById(R.id.spnSetor);
         endSpn = (Spinner)findViewById(R.id.spnEndereco);
         statusSpn = (Spinner)findViewById(R.id.spnEstado);
         observacaoTxt = (TextView)findViewById(R.id.txtObservacao);
-        Cursor setor = getContentResolver().query(DatabaseContract.SetorPatrim.CONTENT_URI, null, null, null, null);
-        setor.moveToFirst();
-        Log.i("Setor",String.valueOf(setor.getCount()));
-        String[] from = new String[] {DatabaseContract.SetorPatrim.COLUMN_NAME_NOMESETOR};
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String id = sharedPref.getString("pref_syncConnectionType","1");
+        lastSetorId = id;
+        String[] args = new String[] {String.valueOf(id)};
+        Cursor endereco = getContentResolver().query(DatabaseContract.EnderecoPatrim.CONTENT_URI, null, DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + "= ?", args, null);
+        String[] from = new String[] {DatabaseContract.EnderecoPatrim.COLUMN_NAME_NOME_ENDERECO};
         int[] to = new int[] {android.R.id.text1};
-        SimpleCursorAdapter sca = new SimpleCursorAdapter(this,android.R.layout.simple_spinner_dropdown_item,setor,from,to);
+        SimpleCursorAdapter sca = new SimpleCursorAdapter(this,android.R.layout.simple_spinner_dropdown_item,endereco,from,to,0);
         sca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //ArrayAdapter<CharSequence> adapterSetor = ArrayAdapter.createFromResource(this,R.array.setor, android.R.layout.simple_spinner_item);
-        //adapterSetor.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        setorSpn.setAdapter(sca);
-        setorSpn.setOnItemSelectedListener(this);
-        ArrayAdapter<CharSequence> adapterEnd = ArrayAdapter.createFromResource(this, endereco, android.R.layout.simple_spinner_item);
-        adapterEnd.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        endSpn.setAdapter(adapterEnd);
-        if(savedInstanceState != null){
-            setorSpn.setSelection(savedInstanceState.getInt(SETOR_SPINNER_VALUE));
-            endSpn.setSelection(savedInstanceState.getInt(END_SPINNER_VALUE));
-        }
+        endSpn.setAdapter(sca);
+        endSpn.setOnItemSelectedListener(this);
         ArrayAdapter<CharSequence> adapterSta = ArrayAdapter.createFromResource(this,R.array.status, android.R.layout.simple_spinner_item);
         adapterSta.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpn.setAdapter(adapterSta);
         item = new Item();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String setor = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_syncConnectionType","1");
+        if(!setor.equals(lastSetorId)){
+            String[] args = new String[]{String.valueOf(setor)};
+            Cursor endereco = getContentResolver().query(DatabaseContract.EnderecoPatrim.CONTENT_URI, null, DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + "= ?", args, null);
+            String[] from = new String[]{DatabaseContract.EnderecoPatrim.COLUMN_NAME_NOME_ENDERECO};
+            int[] to = new int[]{android.R.id.text1};
+            SimpleCursorAdapter sca = (SimpleCursorAdapter) endSpn.getAdapter();
+            sca.swapCursor(endereco);
+            endSpn.setAdapter(sca);
+            lastSetorId = setor;
+        }
     }
 
     @Override
@@ -135,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Toast.makeText(this,"Favor preencher o campo Patrim e clicar em IR, ou ler o código de barras!", Toast.LENGTH_LONG).show();
         }
         if(v.getId() == R.id.find_button){
-            //Toast.makeText(this,"teste",Toast.LENGTH_SHORT).show();
             String[] a = new String[] {patrimTxt.getText().toString()};
             Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
             Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
@@ -150,18 +155,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.i("ID", String.valueOf(item.get_ID()));
                 item.setLocalInventario(this.endSpn.getSelectedItemId());
                 item.setData_inventario(mFormat.format(cal.getTime()));
-                //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
-                /*cv = item.toContentValues();
-                uri = ContentUris.withAppendedId(uri, item.get_ID());
-                Log.i("uri", uri.toString());
-                Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));*/
             }
             else {
                 Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
                 item.setPatrim(patrimTxt.getText().toString());
                 item.setLocalInventario(this.endSpn.getSelectedItemId());
                 item.setData_inventario(mFormat.format(cal.getTime()));
-                //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
             }
 
             c.close();
@@ -171,12 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(END_SPINNER_VALUE,endSpn.getSelectedItemPosition());
-        outState.putInt(SETOR_SPINNER_VALUE,setorSpn.getSelectedItemPosition());
-    }
+
 
     @Override
     @TargetApi(23)
@@ -202,23 +196,28 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 
-            // Filter to only show results that can be "opened", such as
-            // a file (as opposed to a list of contacts or timezones).
+            //Filtro para mostrar somente arquivos que podem ser abertos, como por exemplo
+            // um arquivo texto (diferente de um contato, por exemplo).
             intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-            // Create a file with the requested MIME type.
+            // Cria um arquivo com o  MIME type especificado.
             intent.setType("text/comma-separated-values");
             intent.putExtra(Intent.EXTRA_TITLE, "teste.csv");
             startActivityForResult(intent, EXPORT_REQUEST_CODE);
 
         }
         if(item.getItemId() == R.id.menu_config){
+            Intent intent = new Intent(this, PreferenceActivity.class);
+            startActivity(intent);
+
+        }
+        if(item.getItemId() == R.id.menu_import_locais){
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("text/plain");
             try {
                 startActivityForResult(intent, JSON_REQUEST_CODE);
             } catch (ActivityNotFoundException e){
-                Log.e("FILE", "No app found for import the file.");
+                Log.e("FILE", "Não foi possível importar o arquivo.");
             }
         }
         if(item.getItemId() == R.id.app_bar_search){
@@ -235,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        //Log.e("onActivityResult:","requestCode: "+ requestCode + " intentIntegrator: " + IntentIntegrator.REQUEST_CODE);
         if(requestCode == IntentIntegrator.REQUEST_CODE) {
             IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if ((scanningResult != null) && (scanningResult.getContents() != null)) {
@@ -244,7 +242,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     a[0] = scanningResult.getContents().substring(1,7);
                 else
                     a[0] = scanningResult.getContents().substring(2,8);
-                //Log.i("PAT", a[0]);
                 patrimTxt.setText(a[0]);
                 Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
                 Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
@@ -256,23 +253,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     item = Item.fromCursor(c);
                     descricaoTxt.setText(item.getDescricao());
                     observacaoTxt.setText(item.getObservacao());
-                    //Log.i("ID", String.valueOf(i.get_ID()));
                     item.setLocalInventario(this.endSpn.getSelectedItemId());
                     item.setData_inventario(mFormat.format(cal.getTime()));
                     item.setObservacao(observacaoTxt.getText().toString());
-                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_STATUS,"BOM");
-                    /*cv = i.toContentValues();
-                    uri = ContentUris.withAppendedId(uri, i.get_ID());
-                    Log.i("uri", uri.toString());
-                    Log.i("update",String.valueOf(getContentResolver().update(uri,cv,null,null)));//zerar  objeto item para gravar novo item
-                    item = new Item();*/
                 }
                 else {
                     Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
-                    //Item i = new Item();
                     item.setLocalInventario(endSpn.getSelectedItemId());
                     item.setData_inventario(mFormat.format(cal.getTime()));
-                    //cv.put(DatabaseContract.ItemPatrim.COLUMN_NAME_DESC,fields[COL_DESC].trim());
                     item.setCod_endereco(0); //validar
                     item.setPatrim(a[0]);
                     item.setStatus("BOM");
@@ -320,16 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        //Toast.makeText(this, String.valueOf(id), Toast.LENGTH_LONG).show();
-        String[] args = new String[] {String.valueOf(id)};
-        Cursor endereco = getContentResolver().query(DatabaseContract.EnderecoPatrim.CONTENT_URI, null, DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + "= ?", args, null);
-        endereco.moveToFirst();
-        Log.i("Endereco",String.valueOf(endereco.getCount()));
-        String[] from = new String[] {DatabaseContract.EnderecoPatrim.COLUMN_NAME_NOME_ENDERECO};
-        int[] to = new int[] {android.R.id.text1};
-        SimpleCursorAdapter sca = new SimpleCursorAdapter(this,android.R.layout.simple_spinner_dropdown_item,endereco,from,to);
-        sca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.endSpn.setAdapter(sca);
+
     }
 
     @Override

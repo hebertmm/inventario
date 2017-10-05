@@ -9,7 +9,11 @@
         android:title="@string/exportar" />
     <item
         android:id="@+id/menu_config"
-        android:title="@string/config" />
+        android:title="@string/config"
+        android:orderInCategory="100"/>
+    <item
+        android:id="@+id/menu_import_locais"
+        android:title="@string/importarLocais" />
     <item
         android:id="@+id/app_bar_search"
         android:actionViewClass="android.widget.SearchView"

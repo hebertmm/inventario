@@ -195,11 +195,7 @@ public class InventarioProvider extends ContentProvider {
                 break;
             }
             case ENDERECO: {
-                long _id = db.delete(DatabaseContract.EnderecoPatrim.TABLE_NAME, selection, selectionArgs);
-                if ( _id > 0 )
-                    ContentUris.withAppendedId(DatabaseContract.EnderecoPatrim.CONTENT_URI, _id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                affectedRows = db.delete(DatabaseContract.EnderecoPatrim.TABLE_NAME, selection, selectionArgs);
                 break;
             }
             case ENDERECO_COM_ID: {
@@ -209,11 +205,7 @@ public class InventarioProvider extends ContentProvider {
                 break;
             }
             case SETOR: {
-                long _id = db.delete(DatabaseContract.SetorPatrim.TABLE_NAME, selection, selectionArgs);
-                if ( _id > 0 )
-                    ContentUris.withAppendedId(DatabaseContract.SetorPatrim.CONTENT_URI, _id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                affectedRows = db.delete(DatabaseContract.SetorPatrim.TABLE_NAME, selection, selectionArgs);
                 break;
             }
             default:

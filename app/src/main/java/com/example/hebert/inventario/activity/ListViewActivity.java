@@ -13,7 +13,6 @@ import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.hebert.inventario.R;
 import com.example.hebert.inventario.data.DatabaseContract;
@@ -70,7 +69,7 @@ public class ListViewActivity extends ListActivity implements LoaderManager.Load
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Toast.makeText(this,"Click!",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"Click!",Toast.LENGTH_SHORT).show();
         super.onListItemClick(l, v, position, id);
     }
 
