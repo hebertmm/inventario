@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,7 +16,7 @@ import android.widget.TextView;
 import com.example.hebert.inventario.R;
 import com.example.hebert.inventario.data.DatabaseContract;
 
-public class FindActivity extends AppCompatActivity implements View.OnClickListener{
+public class FindActivity extends AppCompatActivity implements View.OnClickListener, TextView.OnEditorActionListener{
     private Button btnBuscar;
     private TextView txtPatrim, txtDesc, txtEndCadastro, txtStatus, txtDataInv, txtEnderecoInv, txtObs;
     private EditText txtBusca;
@@ -26,6 +28,7 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
         btnBuscar = (Button) findViewById(R.id.btnBuscar);
         btnBuscar.setOnClickListener(this);
         txtBusca = (EditText) findViewById(R.id.txtBusca);
+        txtBusca.setOnEditorActionListener(this);
         txtPatrim = (TextView) findViewById(R.id.txtPatrim);
         txtDesc = (TextView) findViewById(R.id.txtDesc);
         txtEndCadastro = (TextView) findViewById(R.id.txtEndCadastro);
@@ -69,5 +72,15 @@ public class FindActivity extends AppCompatActivity implements View.OnClickListe
             i.close();
 
         }
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        boolean handled = false;
+        if(actionId == EditorInfo.IME_ACTION_SEARCH){
+            onClick(findViewById(R.id.btnBuscar));
+            handled = true;
+        }
+        return handled;
     }
 }

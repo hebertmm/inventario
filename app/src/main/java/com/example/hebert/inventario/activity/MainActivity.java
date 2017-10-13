@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -137,8 +138,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }//falta zerar o objeto item para preparar para nova leitura
                 resetFields();
             }
-            else
-                Toast.makeText(this,"Favor preencher o campo Patrim e clicar em IR, ou ler o código de barras!", Toast.LENGTH_LONG).show();
+            else {
+                Toast.makeText(this, "Favor preencher o campo Patrim e clicar em IR, ou ler o código de barras!", Toast.LENGTH_LONG).show();
+                resetFields();
+            }
         }
         if(v.getId() == R.id.find_button){
             String[] a = new String[] {patrimTxt.getText().toString()};
@@ -155,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.i("ID", String.valueOf(item.get_ID()));
                 item.setLocalInventario(this.endSpn.getSelectedItemId());
                 item.setData_inventario(mFormat.format(cal.getTime()));
+                findBtn.setEnabled(false);
+                scanBtn.setEnabled(false);
             }
             else {
                 Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
@@ -175,9 +180,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     @TargetApi(23)
     public boolean onOptionsItemSelected(MenuItem item) {
-        String perm[] = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE"};
-
-        requestPermissions(perm, 200);
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            String perm[] = {"android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
+            requestPermissions(perm, 200);
+        }
         if(item.getItemId() == R.id.menu_import){
             Intent fileintent = new Intent(Intent.ACTION_GET_CONTENT);
             fileintent.setType("text/comma-separated-values");
@@ -256,6 +262,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     item.setLocalInventario(this.endSpn.getSelectedItemId());
                     item.setData_inventario(mFormat.format(cal.getTime()));
                     item.setObservacao(observacaoTxt.getText().toString());
+                    findBtn.setEnabled(false);
+                    scanBtn.setEnabled(false);
                 }
                 else {
                     Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
@@ -321,5 +329,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         observacaoTxt.setText("");
         patrimTxt.requestFocus();
         item = new Item();
+        findBtn.setEnabled(true);
+        scanBtn.setEnabled(true);
     }
 }

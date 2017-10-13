@@ -20,7 +20,8 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="Patrimônio"
-            android:inputType="number" />
+            android:inputType="number"
+            android:imeOptions="actionSearch"/>
 
         <Button
             android:id="@+id/btnBuscar"
