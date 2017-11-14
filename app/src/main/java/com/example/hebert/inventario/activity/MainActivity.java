@@ -205,8 +205,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         }
         if(item.getItemId() == R.id.menu_export){
-
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            Intent i = new Intent(this, FileGeneratorActivity.class);
+            startActivity(i);
+            /*Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 
             //Filtro para mostrar somente arquivos que podem ser abertos, como por exemplo
             // um arquivo texto (diferente de um contato, por exemplo).
@@ -215,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // Cria um arquivo com o  MIME type especificado.
             intent.setType("text/comma-separated-values");
             intent.putExtra(Intent.EXTRA_TITLE, "teste.csv");
-            startActivityForResult(intent, EXPORT_REQUEST_CODE);
+            startActivityForResult(intent, EXPORT_REQUEST_CODE);*/
 
         }
         if(item.getItemId() == R.id.menu_config){
