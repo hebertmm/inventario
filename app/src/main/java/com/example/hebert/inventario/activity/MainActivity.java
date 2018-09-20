@@ -1,6 +1,5 @@
 package com.example.hebert.inventario.activity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
@@ -9,7 +8,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -39,6 +40,11 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+//import com.google.zxing.integration.android.IntentIntegrator;
+//import com.google.zxing.integration.android.IntentResult;
+
+//import com.google.zxing.integration.android.IntentIntegrator;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, AdapterView.OnItemSelectedListener{
 
@@ -98,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if(!setor.equals(lastSetorId)){
             String[] args = new String[]{String.valueOf(setor)};
             Cursor endereco = getContentResolver().query(DatabaseContract.EnderecoPatrim.CONTENT_URI, null, DatabaseContract.EnderecoPatrim.COLUMN_NAME_COD_SETOR + "= ?", args, null);
-            String[] from = new String[]{DatabaseContract.EnderecoPatrim.COLUMN_NAME_NOME_ENDERECO};
-            int[] to = new int[]{android.R.id.text1};
             SimpleCursorAdapter sca = (SimpleCursorAdapter) endSpn.getAdapter();
             sca.swapCursor(endereco);
             endSpn.setAdapter(sca);
@@ -117,8 +121,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.scan_button){
-            IntentIntegrator scantIntegrator = new IntentIntegrator(this);
-            scantIntegrator.initiateScan();
+            IntentIntegrator scanIntegrator = new IntentIntegrator(this);
+            scanIntegrator.setOrientationLocked(false);
+            scanIntegrator.initiateScan();
         }
         if(v.getId() == R.id.btnSalvar) {
             if (item.getPatrim() != null) {
@@ -134,17 +139,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     cv.putNull(DatabaseContract.ItemPatrim._ID);
                     uri = getContentResolver().insert(uri,cv);
                     Log.i("inserido", cv.toString());
-                }//falta zerar o objeto item para preparar para nova leitura
+                }
                 resetFields();
             }
-            else
-                Toast.makeText(this,"Favor preencher o campo Patrim e clicar em IR, ou ler o código de barras!", Toast.LENGTH_LONG).show();
+            else {
+                Toast.makeText(this, "Favor preencher o campo Patrim e clicar em IR, ou ler o código de barras!", Toast.LENGTH_LONG).show();
+                resetFields();
+            }
         }
         if(v.getId() == R.id.find_button){
             String[] a = new String[] {patrimTxt.getText().toString()};
             Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
             Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
-            Log.i("Cursor", String.valueOf(c.getCount()));
             ContentValues cv = new ContentValues();
             Calendar cal = Calendar.getInstance();
             SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -155,9 +161,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.i("ID", String.valueOf(item.get_ID()));
                 item.setLocalInventario(this.endSpn.getSelectedItemId());
                 item.setData_inventario(mFormat.format(cal.getTime()));
+                findBtn.setEnabled(false);
+                scanBtn.setEnabled(false);
             }
             else {
                 Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
+                Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                Log.i("Vib", String.valueOf(vibrator.hasVibrator()));
+                vibrator.vibrate(200);
                 item.setPatrim(patrimTxt.getText().toString());
                 item.setLocalInventario(this.endSpn.getSelectedItemId());
                 item.setData_inventario(mFormat.format(cal.getTime()));
@@ -173,11 +184,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
 
     @Override
-    @TargetApi(23)
+    //@TargetApi(23)
     public boolean onOptionsItemSelected(MenuItem item) {
-        String perm[] = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE"};
-
-        requestPermissions(perm, 200);
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            String perm[] = {"android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
+            requestPermissions(perm, 200);
+        }
         if(item.getItemId() == R.id.menu_import){
             Intent fileintent = new Intent(Intent.ACTION_GET_CONTENT);
             fileintent.setType("text/comma-separated-values");
@@ -245,7 +257,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 patrimTxt.setText(a[0]);
                 Uri uri = DatabaseContract.ItemPatrim.CONTENT_URI;
                 Cursor c = getContentResolver().query(uri,null,DatabaseContract.ItemPatrim.COLUMN_NAME_PATRIM + " = ?",a,null);
-                Log.i("Cursor", String.valueOf(c.getCount()));
                 ContentValues cv = new ContentValues();
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -256,6 +267,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     item.setLocalInventario(this.endSpn.getSelectedItemId());
                     item.setData_inventario(mFormat.format(cal.getTime()));
                     item.setObservacao(observacaoTxt.getText().toString());
+                    findBtn.setEnabled(false);
+                    scanBtn.setEnabled(false);
                 }
                 else {
                     Toast.makeText(this,"Item não localizado no banco de dados",Toast.LENGTH_LONG).show();
@@ -274,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
         }
         if(requestCode == EXPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK){
-            Uri uri = null;
+            Uri uri;
             FileOutputUtility fo = new FileOutputUtility(this);
             if(intent != null){
                 uri = intent.getData();
@@ -284,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
         }
         if(requestCode == IMPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK){
-            Uri uri = null;
+            Uri uri;
             FileInputUtility fileUtility = new FileInputUtility(this);
             if(intent != null) {
                 uri = intent.getData();
@@ -295,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if(requestCode == JSON_REQUEST_CODE && resultCode == Activity.RESULT_OK){
             String a = MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt");
             Toast.makeText(getBaseContext(),a,Toast.LENGTH_LONG ).show();
-            Uri uri = null;
+            Uri uri;
             if(intent != null) {
                 uri = intent.getData();
                 Log.i("READ", uri.toString());
@@ -321,5 +334,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         observacaoTxt.setText("");
         patrimTxt.requestFocus();
         item = new Item();
+        findBtn.setEnabled(true);
+        scanBtn.setEnabled(true);
     }
 }

@@ -49,10 +49,8 @@ public class InventarioProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
-                //Log.i("Query",selection + selectionArgs[0]);
                 break;
             }
-            // "weather/*"
             case ITEM_COM_ID: {
                 retCursor = dbOpenHelper.getReadableDatabase().query(
                         DatabaseContract.ItemPatrim.TABLE_NAME,
@@ -63,10 +61,8 @@ public class InventarioProvider extends ContentProvider {
                         null,
                         null
                 );
-                //Log.i("Query",selection + selectionArgs[0]);
                 break;
             }
-            // "weather"
             case ENDERECO: {
                 retCursor = dbOpenHelper.getReadableDatabase().query(
                         DatabaseContract.EnderecoPatrim.TABLE_NAME,
@@ -89,10 +85,8 @@ public class InventarioProvider extends ContentProvider {
                         null,
                         null
                 );
-                //Log.i("Query",selection + selectionArgs[0]);
                 break;
             }
-            // "location"
             case SETOR: {
                 retCursor = dbOpenHelper.getReadableDatabase().query(
                         DatabaseContract.SetorPatrim.TABLE_NAME,
